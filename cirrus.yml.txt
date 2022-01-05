@@ -1,0 +1,31 @@
+task:
+  name: "QEMU for runing windows"
+  timeout_in: 240m  
+  container:
+      image: ubuntu:20.04
+      cpu: 8
+      memory: 8G
+  Clone:
+       -git clone https://github.com/kjliew/qemu-3dfx.git
+  
+  Build QEMU:
+       -mkdir ~/myqemu && cd ~/myqemu
+       -cd qemu-3dfx
+       -wget https://download.qemu.org/qemu-6.2.0.tar.xz
+       -cd qemu-6.2.0
+       -rsync -r ../qemu-0/hw/3dfx ./hw/
+       -rsync -r ../qemu-1/hw/mesa ./hw/
+       -patch -p0 -i ../00-qemu620-mesa-glide.patch
+       -bash ../scripts/sign_commit
+       -mkdir ../build && cd ../build
+       -../qemu-6.2.0/configure && make
+
+  Building Guest Wrappers:
+       - cd ~/myqemu/qemu-3dfx/wrappers/3dfx
+       - mkdir build && cd build
+       - bash ../../../scripts/conf_wrapper
+       - make && make clean
+       - cd ~/myqemu/qemu-3dfx/wrappers/mesa
+       - mkdir build && cd build
+       - bash ../../../scripts/conf_wrapper
+       - make && make clean
